@@ -1,8 +1,8 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState } from 'react';
 import { Table } from 'antd';
+import axios from "axios";
 
 const columns = [
   {
@@ -22,15 +22,31 @@ const columns = [
   },
 ];
 
+interface Articles {
+  articles: [Article];
+}
 
-export default function Home({ data }) {
-  // const [currentPage, setCurrentPage] = useState(1);
+interface Article {
+  id: number;
+  article_id: number;
+  points: number;
+  title: string;
+  url: string;
+}
+
+interface Props {
+  data: {
+    total_pages: number,
+    total_rows: number,
+    articles: Articles,
+  }
+}
+
+export default function Home(props: Props) {
+  const data = props.data;
   const [totalRows, setTotalRows] = useState(data.total_rows);
   const [articles, setArticles] = useState(remapArticles(data.articles));
   const [loading, setLoading] = useState(false);
-  const [perPage, setPerPage] = useState(10);
-
-  // console.log("~~~~~~~~~~~~~~~~~~~~~~:", remapArticles(data.articles));
 
   return (
     <div className={styles.container}>
@@ -47,7 +63,6 @@ export default function Home({ data }) {
          total: totalRows,
          defaultCurrent: 1,
          onChange: onPageChange,
-         onShowSizeChange: onPerRowsChange,
        }}
        loading={loading}
       />
@@ -56,9 +71,7 @@ export default function Home({ data }) {
 
   function onPageChange(page: number, rowsPerPage: number) {
     setLoading(true);
-    console.log("ŠĪ HUIŅA TIEK IZSAUKTA NO onPageChange:", page);
     getArticles(page, rowsPerPage).then((data) => {
-      console.log("ŠĪ HUIŅA TIEK IZSAUKTA NO onPageChange PĒC getArticles:", data);
       const localArticles = remapArticles(data.articles)
 
       setArticles(localArticles);
@@ -66,9 +79,6 @@ export default function Home({ data }) {
     setLoading(false);
   }
 
-  function onPerRowsChange(rowsPerPages: number) {
-    setPerPage(rowsPerPages);
-  }
 }
 
 function makeLink(url: string): ReactNode {
@@ -79,15 +89,22 @@ function makeLink(url: string): ReactNode {
 }
 
 async function getArticles(page: number, rowsPerPage: number) {
-  return await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/?page=${page}&rows-per-page=${rowsPerPage}`, {
-      method: 'GET',
-      mode: 'no-cors',
-    }).then((res) => res.json());
+  const payload = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  };
+  return await axios.get(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/?page=${page}&rows-per-page=${rowsPerPage}`, payload
+    ).then((res) => {
+      return res.data;
+      });
 }
 
-function remapArticles(articles) {
-  return articles.map((article) => {
+function remapArticles(articles: Articles) {
+  return articles.map((article: Article) => {
     return {
       id: article.id,
       points: article.points,
@@ -99,7 +116,6 @@ function remapArticles(articles) {
 
 export async function getStaticProps() {
   const data = await getArticles(1, 10);
-  // console.log("getStaticProps:", data);
   return {
     props: {
       data,
