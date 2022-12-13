@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Table } from 'antd';
 import axios from "axios";
 
@@ -20,6 +20,11 @@ const columns = [
     dataIndex: 'link',
     key: 'link',
   },
+  {
+    title: 'Date',
+    dataIndex: 'date',
+    key: 'date',
+  },
 ];
 
 interface Articles {
@@ -32,6 +37,7 @@ interface Article {
   points: number;
   title: string;
   url: string;
+  created_at: string;
 }
 
 interface Props {
@@ -110,8 +116,15 @@ function remapArticles(articles: Articles) {
       points: article.points,
       title: article.title,
       link: makeLink(article.url),
+      date: convertDateTime(article.created_at),
     }
   });
+}
+
+function convertDateTime(time: string): string {
+
+  const dateTime = new Date(time);
+  return dateTime.toLocaleDateString() + " - " + dateTime.toLocaleTimeString()
 }
 
 export async function getStaticProps() {
