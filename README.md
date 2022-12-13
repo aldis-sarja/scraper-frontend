@@ -26,7 +26,7 @@ cp .env.local.example .env.local
 Write down Your backend address:
 
 ```dosini
-NEXT_PUBLIC_BACKEND_URL=<address:port/api/v1>
+NEXT_PUBLIC_BACKEND_URL=<address:port/api>
 ```
 
 Run:

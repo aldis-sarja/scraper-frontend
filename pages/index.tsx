@@ -3,6 +3,7 @@ import styles from '../styles/Home.module.css'
 import { ReactNode, useEffect, useState } from 'react';
 import { Table } from 'antd';
 import axios from "axios";
+import { formatISO9075 } from 'date-fns'
 
 const columns = [
   {
@@ -116,15 +117,9 @@ function remapArticles(articles: Articles) {
       points: article.points,
       title: article.title,
       link: makeLink(article.url),
-      date: convertDateTime(article.created_at),
+      date: formatISO9075(new Date(article.created_at)),
     }
   });
-}
-
-function convertDateTime(time: string): string {
-
-  const dateTime = new Date(time);
-  return dateTime.toLocaleDateString() + " - " + dateTime.toLocaleTimeString()
 }
 
 export async function getStaticProps() {
