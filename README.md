@@ -1,4 +1,4 @@
-# Scraper frontend app for
+# Scraper frontend app
 
 Built with nodejs, Nextjs 13, and Ant Design
 This is only frontend of Scrapers app. You must get backend part to make it work.
